@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+unset GREP_OPTIONS
+COMMIT_MSG_ERROR_FOUND=0
+MSG="$1"
+ERROR_TEXT="\n"
+
+#
+# Check for maximum line length
+#
+checkForLineLength() {
+    if egrep -q '^[^#].{74}' "$MSG"; then
+        COMMIT_MSG_ERROR_FOUND=1
+        ERROR_TEXT="${ERROR_TEXT} - The maximum line length of 74 characters is exceeded.\n"
+    fi
+}
+
+#
+# Check for existence of the commit type text
+#
+checkForCommitType() {
+    if ! egrep -q '\[[^]]+\] .+$' "$MSG"; then
+        COMMIT_MSG_ERROR_FOUND=1
+        ERROR_TEXT="${ERROR_TEXT} - Your first line has to contain a commit type like '[BUGFIX]'.\n"
+    fi
+}
+
+checkForLineLength
+checkForCommitType
+
+# Abort commit on message format errors
+if [ $COMMIT_MSG_ERROR_FOUND -eq 1 ]; then
+    echo -e " "
+    echo -e "------------------------------------------------------------------"
+    echo -e " >> ERROR in your commit message:                                 "
+    echo -e "  $ERROR_TEXT"
+    echo -e "                                                                  "
+    echo -e "  You should fix this and then do commit --amend etc.             "
+    echo -e "------------------------------------------------------------------\n"
+fi

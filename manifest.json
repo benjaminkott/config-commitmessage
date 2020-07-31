@@ -1,0 +1,5 @@
+{
+    "files": {
+        "commit-msg": ".git/hooks/commit-msg"
+    }
+}
